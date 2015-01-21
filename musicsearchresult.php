@@ -16,11 +16,12 @@ ini_set('display_errors','1');
 error_reporting(E_ALL);
 
 require_once('./twitteroauth.php');
+require('./keys.php');
 
-$consumerKey = '************************';
-$consumerSecret = '**************************************************';
-$accessToken = '**************************************************';
-$accessTokenSecret = '*********************************************';
+$consumerKey = CONSUMER_KEY;
+$consumerSecret = CONSUMER_SECRET;
+$accessToken = OAUTH_TOKEN;
+$accessTokenSecret = OAUTH_TOKEN_SECRET;
 
 if ($_POST['artist_name'] === "") {
 	$artist_name = "名無し";
