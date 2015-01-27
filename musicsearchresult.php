@@ -1,6 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-<title>#nowplaying</title>
+    <meta charset="UTF-8">
+    <title>#nowplaying</title>
 </head>
 <body>
 <p>Twitterの#nowplayingでつぶやかれた回数順で表示します。</p>
@@ -48,11 +50,21 @@ foreach ($songs["results"] as $song) {
 	$albumlist[] = $song["collectionName"];
 }
 $twObj = new TwitterOAuth($consumerKey, $consumerSecret, $accessToken, $accessTokenSecret);
-$req = $twObj->OAuthRequest('https://api.twitter.com/1.1/search/tweets.json', 'GET', array('lang'=>'ja', 'q'=>'%23nowplaying '.$artist_name, 'count'=>200));
+$params = array(
+    'lang'  => 'ja',
+    'q'     => '%23nowplaying '.$artist_name,
+    'count' => 200
+);
+$req = $twObj->get('search/tweets.json', $params);
 $tweets = json_decode($req);
 $maxid = songcount($tweets, $songlist, $albumlist, $artist_name);
 for ($i = 0; $i < 8 and $maxid != -1; $i++) {
-	$req = $twObj->OAuthRequest('https://api.twitter.com/1.1/search/tweets.json', 'GET', array('lang'=>'ja', 'q'=>'%23nowplaying '.$artist_name, 'count'=>100, 'max_id'=>$maxid));
+    $params = array('lang' => 'ja',
+    'q'                    => '%23nowplaying '.$artist_name,
+    'count'                => 100,
+    'max_id'               => $maxid
+    );
+	$req = $twObj->get('search/tweets.json', $params);
 	$tweets = json_decode($req);
 	$maxid = songcount($tweets, $songlist, $albumlist, $artist_name);
 }
@@ -61,7 +73,7 @@ function songcount($tweets, &$songlist, $albumlist, $artist_name) {
 $maxid = -1;
 $id = 0;
 if (isset($tweets) && empty($tweets->errors)) {	
-	$tweets = $tweets->statuses;	
+	$tweets = $tweets->statuses;
 	foreach ($tweets as $val) {
 		$tweet = $val->text;
 		$id += 1;
