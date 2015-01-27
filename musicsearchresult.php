@@ -17,8 +17,8 @@
 ini_set('display_errors','1');
 error_reporting(E_ALL);
 
-require_once('./twitteroauth.php');
-require('./keys.php');
+require_once('./vendor/autoload.php');
+require_once('./keys.php');
 
 $consumerKey = CONSUMER_KEY;
 $consumerSecret = CONSUMER_SECRET;
@@ -27,10 +27,11 @@ $accessTokenSecret = OAUTH_TOKEN_SECRET;
 
 if ($_POST['artist_name'] === "") {
 	$artist_name = "名無し";
-	print '<h3>アーティスト名を入力してください。</h3>';
+	echo '<h3>アーティスト名を入力してください。</h3>';
 } else {
 	$artist_name = $_POST['artist_name'];
-	print '<h3>'.$artist_name.' の検索結果</h3>';
+    var_dump($artist_name);
+	echo '<h3>'.$artist_name.' の検索結果</h3>';
 }
 $artist_name = str_replace(" ", "%20", $artist_name);
 $url = "https://itunes.apple.com/search?country=JP&attribute=artistTerm&limit=200&lang=ja_jp&entity=song&term=".$artist_name;
@@ -49,14 +50,13 @@ foreach ($songs["results"] as $song) {
 	);
 	$albumlist[] = $song["collectionName"];
 }
-$twObj = new TwitterOAuth($consumerKey, $consumerSecret, $accessToken, $accessTokenSecret);
+$twObj = new TwistOAuth($consumerKey, $consumerSecret, $accessToken, $accessTokenSecret);
 $params = array(
     'lang'  => 'ja',
     'q'     => '%23nowplaying '.$artist_name,
     'count' => 200
 );
-$req = $twObj->get('search/tweets.json', $params);
-$tweets = json_decode($req);
+$tweets = $twObj->get('search/tweets', $params);
 $maxid = songcount($tweets, $songlist, $albumlist, $artist_name);
 for ($i = 0; $i < 8 and $maxid != -1; $i++) {
     $params = array('lang' => 'ja',
@@ -64,8 +64,7 @@ for ($i = 0; $i < 8 and $maxid != -1; $i++) {
     'count'                => 100,
     'max_id'               => $maxid
     );
-	$req = $twObj->get('search/tweets.json', $params);
-	$tweets = json_decode($req);
+	$tweets = $twObj->get('search/tweets', $params);
 	$maxid = songcount($tweets, $songlist, $albumlist, $artist_name);
 }
 
